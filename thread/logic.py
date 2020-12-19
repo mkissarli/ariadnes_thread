@@ -24,37 +24,30 @@ def get_company_officers(company_number: str):
     response = requests.get(url, auth = auth)
     return response.json()
     
-
-def get_associated_companies_info_by_company(company_no: str, depth: int = 1):
-    """
-    Finds information about all companies associated through officers with the starting company.
-
-    Args:
-        company_no (str):  The company number we want to search associated companies with.
-        depth (int): The depth of search in the graph of companies.
-
-    Returns:
-        A list of information about all associated companies up to the given depth.
-    """
-    company_info = get_company_info(company_no)
-    return []
-
 from collections import deque
 
 def start_at_company(company_number: str, depth: int = 1):
     company_graph = Graph()
-    count = 0
+    officer_count = 0
     q = deque([])
-    q.append(company_number)
+    q.append([company_number])
     while len(q) > 0 and depth > 0:
-        number = q.popleft()
-        response = get_company_info(number)
-        c = Company(response)
-        response = get_company_officers(number)
-        for i in response["items"]:
-            o = Officer(i)
-            company_graph.add(c, o)
+        number_list = q.popleft()
+        new_number_list = []
+        for number in number_list:
+            # If the value already exists in the graph then skip the rest of the loop.
+            if len({k: v for k, v in company_graph.graph_dict.items()
+                    if type(v) == Company and v.company_number == number}):
+                continue
 
+            response = get_company_info(number)
+            c = Company(response)
+            response = get_company_officers(number)
+            for i in response["items"]:
+                o = Officer(i)
+                company_graph.add(c, o)
+
+                
         depth = depth - 1
 
     return company_graph
@@ -90,21 +83,7 @@ class Company:
         self.company_name = json["company_name"]
         self.creation = json["date_of_creation"]
 
-        ##url = "https://api.companieshouse.gov.uk/company{officers}".format(officers = json.links.officers)
-        ##response = requests.get(url, auth = auth)
-
-
 comp = start_at_company("07798925")
-
-g = Graph()
-g.add("Apple", "Steve Jobs")
-g.add("Steve Jobs", "Pixar")
-g.add("Apple", "Tom Cook")
-
-print(g.graph_dict)
-
-#print()
-### TEST
 
 import dash
 import dash_core_components as dcc
