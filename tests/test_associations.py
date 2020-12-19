@@ -34,8 +34,30 @@ class OfficerTestCase(TestCase):
             }
         }
         o = Officer(json)
-        assert(o.officer_name, "Matt")
-        assert(o.appointments_link, "some_link")
+        assert o.officer_name, "Matt"
+        assert o.appointments_link, "some_link"
+
+    def test_init_incorrect(self):
+        json = {}
+        with self.assertRaises(Exception) as e:
+            Officer(json)
+        assert e, "Officer json is missing attributes."
+
+        json = {"name": "Matt"}
+        with self.assertRaises(Exception) as e:
+            Officer(json)
+        assert e, "Officer json is missing attributes."
+
+        json = {
+            "links": {
+                "officer": {
+                    "appointments": "some_link"
+                }
+            }
+        }
+        with self.assertRaises(Exception) as e:
+            Officer(json)
+        assert e, "Officer json is missing attributes."
 
 class CompanyTestCase(TestCase):
     def test_init(self):

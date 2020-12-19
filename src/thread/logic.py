@@ -144,7 +144,7 @@ class Officer:
             self.officer_name = json["name"]
             self.appointments_link = json["links"]["officer"]["appointments"]
         except:
-            raise Error("Officer json is missing attributes.")
+            raise Exception("Officer json is missing attributes.")
 
 class Company:
     """
@@ -166,4 +166,4 @@ class Company:
             self.company_name = json["company_name"]
             self.creation = json["date_of_creation"]
         except:
-            raise Error("Company json is missing attributes.")
+            raise Exception("Company json is missing attributes.")
