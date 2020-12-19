@@ -56,13 +56,11 @@ def start_at_company(company_number: str, depth: int = 1):
     """
     company_graph = Graph()
     c = Company(API.get_company_info(company_number))
-    company_queue = [c]
+    company_queue = []
     officer_queue = []
-
+        
     for i in range(depth + 1):
-        print(i)
         if i % 2 == 0:
-            print("Is company level")
             while company_queue:
                 node = company_queue.pop(0)
                 response = API.get_company_officers(node.company_number)
@@ -85,14 +83,25 @@ def start_at_company(company_number: str, depth: int = 1):
         
 
 class Graph:
+    """
+    Class representing a bi-directional graph, implamented with an adjacency
+    matrix.
+    
+    Attributes:
+    graph_dict: Adjacency Matrix, represented as a dictionary. Shows connections
+      between nodes.
+    """
     def __init__(self):
         # Dictionary of Sets
         self.graph_dict = {}
 
     def add(self, vertex, vertex2):
-
-        ## Adds the vertex to each others edges after check if the dict has the
-        ## key already, otherwise it creates a set there.
+        """
+        Connects vertex to vertex2 and vice-versa in graph_dict.
+        Args:
+        vertex: Any type
+        vertex2: Any type
+        """
         if not vertex in self.graph_dict:
             self.graph_dict[vertex] = set()
 
@@ -104,11 +113,29 @@ class Graph:
         self.graph_dict[vertex2].add(vertex)
     
 class Officer:
+    """
+    Represents an Officer of a company.
+    Args:
+    json (obj): The json object from the Officer resource at Companies Houses.
+    Attributes:
+    officer_name (str)
+    appointments_link (str): Link provided in json to see related appointments.
+    """
     def __init__(self, json):
         self.officer_name = json["name"]
         self.appointments_link = json["links"]["officer"]["appointments"]
 
 class Company:
+    """
+    Represents a Company.
+    Args:
+    json (obj): The json object from the Company resource at Companies Houses.
+    Attributes:
+    company_name (str)
+    company_number (str): Stored as a string as it may have leading 0s.
+    creation (str): Date of creation
+    has_insolvency_history (bool)
+    """
     def __init__(self, json):
         self.has_insolvency_history = json["has_insolvency_history"]
         ## Inconsistant json..
