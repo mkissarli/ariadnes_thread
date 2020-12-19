@@ -1,13 +1,32 @@
 from unittest import TestCase
 
-from thread.logic import get_associated_companies_info_by_company
+from thread.logic import *
 
+class APITestCase(TestCase):
+    def test_get_company_info():
+        pass
 
-class AssociationsTestCase(TestCase):
-    def test_associations(self):
-        self.assertListEqual(
-            sorted([c['company_number'] for c in get_associated_companies_info_by_company('07798925', depth=1)]),
-            sorted(["09099356", "07714634"]))
+    def test_get_company_officers():
+        pass
 
-    def test_something(self):
+    def get_general():
+        pass
+
+class BreadthTestCase(TestCase):
+    def test_start_at_company():
+        pass
+
+class GraphTestCase(TestCase):
+    def test_init():
+        pass
+    
+    def test_add():
+        pass
+
+class OfficerTestCase(TestCase):
+    def test_init():
+        pass
+
+class CompanyTestCase(TestCase):
+    def test_init():
         pass
