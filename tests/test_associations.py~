@@ -30,3 +30,7 @@ class OfficerTestCase(TestCase):
 class CompanyTestCase(TestCase):
     def test_init():
         pass
+
+
+if __name__ == '__main__':
+    unittest.main()
