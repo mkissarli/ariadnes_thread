@@ -11,7 +11,7 @@ class API:
         """
         Retrieves information about a company from Companies House.
         Args:
-        company_no (str): Registered company number.
+        company_number (str): Registered company number.
         Returns:
         Information Companies House holds on the company.
         """
@@ -24,7 +24,7 @@ class API:
         """
         Retrieves information about officers from Companies House.
         Args:
-        company_no (str): Registered company number.
+        company_number (str): Registered company number.
         Returns:
         Information Companies House holds on the company's officers.
         """
@@ -37,7 +37,7 @@ class API:
         """
         Retrieves information from a link on Companies House.
         Args:
-        company_no (str): Registered company number.
+        link (str): Api link.
         Returns:
         Information from Companies House
         """
@@ -46,42 +46,43 @@ class API:
         return response.json()
 
 def start_at_company(company_number: str, depth: int = 1):
+    """
+    Breadth first search with max depth for creating a graph of companies and
+    officers.
+    Args:
+    company_number (str): Registered company number to start at.
+    Returns:
+    Graph of companies and officers.
+    """
     company_graph = Graph()
-    officer_count = 0
-    q = deque(set())
-    q.append({company_number})
-    depth = depth + 1
-    while len(q) > 0 and depth > 0:
-        number_list = q.popleft()
-        new_number_list = set()
-        for number in number_list:
-            # If the value already exists in the graph then skip the rest of the loop.
-            #if len({k: v for k, v in company_graph.graph_dict.items()
-            #        if type(v) == Company and v.company_number == number}):
-            #    continue
-            
-            response = API.get_company_info(number)
-            c = Company(response)
-            depth = depth - 1
-            
-            response = API.get_company_officers(number)
-            if depth > 0:
-                depth = depth - 1
+    c = Company(API.get_company_info(company_number))
+    company_queue = [c]
+    officer_queue = []
+
+    for i in range(depth + 1):
+        print(i)
+        if i % 2 == 0:
+            print("Is company level")
+            while company_queue:
+                node = company_queue.pop(0)
+                response = API.get_company_officers(node.company_number)
                 for i in response["items"]:
                     o = Officer(i)
-                    company_graph.add(c, o)
-                    if depth > 0:
-                        cur_response = API.get_general(i["links"]["officer"]["appointments"])
-                        for appointments in cur_response["items"]:
-                            new_num = appointments["appointed_to"]["company_number"]
-                            new_c = Company(API.get_company_info(new_num))
-                            company_graph.add(new_c, o)
-                            ## @TODO: Multiple calls to the ssame data
-                            new_number_list.add(new_num)
-
-        q.append(new_number_list)
+                    company_graph.add(node, o)
+                    officer_queue.append(o)
+        else:
+            while officer_queue:
+                node = officer_queue.pop(0)
+                response = API.get_general(node.appointments_link)
+                for appointments in response["items"]:
+                    num = appointments["appointed_to"]["company_number"]
+                    c = Company(API.get_company_info(num))
+                    company_graph.add(c, node)
+                    company_queue.append(c)
 
     return company_graph
+            
+        
 
 class Graph:
     def __init__(self):
@@ -105,6 +106,7 @@ class Graph:
 class Officer:
     def __init__(self, json):
         self.officer_name = json["name"]
+        self.appointments_link = json["links"]["officer"]["appointments"]
 
 class Company:
     def __init__(self, json):
@@ -114,4 +116,3 @@ class Company:
         self.company_number = json["company_number"]
         self.company_name = json["company_name"]
         self.creation = json["date_of_creation"]
-
