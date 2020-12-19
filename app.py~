@@ -1,0 +1,75 @@
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import dash_cytoscape as cyto
+from dash.dependencies import Input, Output
+import plotly.express as px
+
+import thread.logic
+
+def return_company_graph(graph):
+    elements = []
+    for key, value in graph.graph_dict.items():
+        if type(key) is Company:
+            elements.append({"data":
+                             {
+                                 "id": key.company_name,
+                                 "label": key.company_name
+                             },
+                             "classes": "company"})
+            for elem in value:
+                elements.append({"data":
+                                 {
+                                     "source": key.company_name,
+                                     "target": elem.officer_name
+                                 }})
+        else:
+            elements.append({"data":
+                             {
+                                 "id": key.officer_name,
+                                 "label": key.officer_name
+                             },
+                             "classes": "officer"})
+            for elem in value:
+                elements.append({"data":
+                                 {
+                                     "source": key.officer_name,
+                                     "target": elem.company_name
+                                 }})
+
+    return elements
+
+app = dash.Dash(__name__)
+
+app.layout = html.Div([
+    html.P("Dash Cytoscape:"),
+    cyto.Cytoscape(
+        id='cytoscape',
+        elements=return_company_graph(comp),
+        layout={'name': 'breadthfirst'},
+        style={'width': '100%', 'height': '480px'},
+        stylesheet=[
+            {
+                'selector': 'node',
+                'style': {
+                    'content': 'data(label)'
+                }
+            },
+            {
+                'selector': '.officer',
+                'style': {
+                    'background-color': 'red',
+                }
+            },
+            {
+                'selector': '.company',
+                'style': {
+                    'background-color': 'blue',
+                }
+            }
+        ]
+    )
+])
+
+app.run_server(debug=True)
+
