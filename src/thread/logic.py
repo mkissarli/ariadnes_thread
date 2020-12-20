@@ -124,18 +124,17 @@ class CompanyGraph:
         company_queue = []
         officer_queue = []
         
-        is_company_rem = 1
+        is_company_rem = 0
         
         if is_company:
             c = Company(API.get_company_info(number))
             company_queue.append(c)
-            is_company_rem = 0
+            is_company_rem = 1
         else:
             o = Officer(API.get_officer_info(number))
             officer_queue.append(o)
             
         for i in range(depth):
-            print(i)
             if i % 2 == is_company_rem:
                 while company_queue:
                     node = company_queue.pop(0)
@@ -153,7 +152,7 @@ class CompanyGraph:
                         c = Company(API.get_company_info(num))
                         company_graph.add(c, node)
                         company_queue.append(c)
-                    
+
         return company_graph
     
     def return_company_graph(graph):
