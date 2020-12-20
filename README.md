@@ -19,12 +19,14 @@ each company, and send this object for rendering.
 
 ## Future Considerations
 
-Ideally, we would add some more unit tests. We would also improve the GUI
-interface as while it is functional, it isn't very pretty, nor very feature full.
+We would improve the GUI interface as while it is functional, it isn't very
+pretty, nor very feature full.
 
 I would also likely change the risk function, to something an economist would
 recommend, as with the limited data from Companies Houses I'm not sure how best
 to calculate risk.
+
+Automated integration testing would also be on the todo list.
 
 ## How to run
 
