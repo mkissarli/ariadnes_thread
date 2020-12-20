@@ -79,17 +79,15 @@ class CompanyGraphTestCase(TestCase):
         with self.assertRaises(TypeError) as e:
             CompanyGraph.start_search("11", depth = 1, is_company = 11)
         self.assertEqual(str(e.exception),  "is_company must be a bool: 11")
-
     # This is a huge pain to test, and makes much more sense testing it in
     # context that is as an integration/system test, which I have done and it
     # works.
-    def test_start_search_at_company(self):
-        #company_graph = start_search("11", depth = 2)
-        pass
-    def test_start_search_at_officer(self):
-        pass
+    #def test_start_search_at_company(self):
+    #    pass
+    #def test_start_search_at_officer(self):
+    #    pass
 
-    def return_company_graph_not_company_graph(self):
+    def test_return_company_graph_not_company_graph(self):
         json = {
             "company_number": "007",
             "company_name": "Bond Industries",
@@ -107,40 +105,112 @@ class CompanyGraphTestCase(TestCase):
             }
         }
         o = Officer(json)
+
+        g = Graph()
+        g.add("1", "2")
         
-        d = {
-            "1": ["2"],
-            "2": ["1"]
-        }
         with self.assertRaises(Exception) as e:
-            CompanyGraph.return_company_graph(d)
+            CompanyGraph.return_company_graph(g)
         self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
 
-        d = {
-            "1": [c],
-            c: ["1"]
-        }
-        with self.assertRaises(Exception) as e:
-            CompanyGraph.return_company_graph(d)
-        self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
-
-        d = {
-            "1": [o],
-            o: ["1"]
-        }
-        with self.assertRaises(Exception) as e:
-            CompanyGraph.return_company_graph(d)
-        self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
-
-        d = {
-            "1": [c],
-            c: ["1",  o],
-            o: [c]
-        }
-        with self.assertRaises(Exception) as e:
-            CompanyGraph.return_company_graph(d)
-        self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
+        g = Graph()
+        g.add("1", c)
         
+        with self.assertRaises(Exception) as e:
+            CompanyGraph.return_company_graph(g)
+        self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
+
+        g = Graph()
+        g.add("1", o)
+        
+        with self.assertRaises(Exception) as e:
+            CompanyGraph.return_company_graph(g)
+        self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
+
+        g = Graph()
+        g.add("1", c)
+        g.add(c, o)
+
+        with self.assertRaises(Exception) as e:
+            CompanyGraph.return_company_graph(g)
+        self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
+
+    def test_return_company_graph_correct(self):
+        json = {
+            "company_number": "007",
+            "company_name": "Bond Industries",
+            # Could add a date test.
+            "date_of_creation": "07/07/2007",
+            "has_insolvency_history": True
+        }
+        c = Company(json)
+        json = {
+            "name": "Matt",
+            "links": {
+                "officer": {
+                    "appointments": "some_link"
+                }
+            }
+        }
+        o = Officer(json)
+
+        json = {
+            "company_number": "0070",
+            "company_name": "Bond Industries",
+            # Could add a date test.
+            "date_of_creation": "07/07/2007",
+            "has_insolvency_history": False
+        }
+        c2 = Company(json)
+        json = {
+            "name": "Matty",
+            "links": {
+                "officer": {
+                    "appointments": "some_link"
+                }
+            }
+        }
+        o2 = Officer(json)
+
+        graph = Graph()
+        graph.add(c, o)
+        graph.add(c, o2)
+
+        assert CompanyGraph.return_company_graph(graph), [
+            {
+                'data': {
+                    'id': 'Bond Industries', 'label': 'Bond Industries: 1'
+                },
+                'classes': 'company'},
+            {
+                'data': {
+                    'source': 'Bond Industries', 'target': 'Matt'
+                }},
+            {
+                'data': {
+                    'source': 'Bond Industries', 'target': 'Matty'
+                }},
+            {
+                'data': {
+                    'id': 'Matt', 'label': 'Matt'},
+                'classes': 'officer'},
+            {
+                'data': {
+                    'source': 'Matt', 'target': 'Bond Industries'
+                }},
+            {
+                'data': {
+                    'id': 'Matty', 'label': 'Matty'},
+                'classes': 'officer'},
+            {
+                'data': {
+                    'source': 'Matty', 'target': 'Bond Industries'}}]
+        
+    def risk_incorrect(self):
+        pass
+
+    def risk_correct(self):
+        pass
 
 class GraphTestCase(TestCase):
     def test_init(self):
