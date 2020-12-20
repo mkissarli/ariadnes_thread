@@ -6,7 +6,11 @@ from dash.dependencies import Input, Output
 import plotly.express as px
 
 from thread.logic import *
-#comp = start_at_company("07798925")
+
+## Load .env file for api-key
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 app = dash.Dash(__name__)
 

@@ -1,9 +1,10 @@
 import requests
 from requests.auth import HTTPBasicAuth
+import os
 
 class API:
     # Should be in an .env really.
-    api_key = "yLwgnyHvwlYxkbOBAoLEwsaEfVQ_a7kAuCUTNtSt"
+    api_key = os.getenv("api_key")
     base = "https://api.companieshouse.gov.uk"
     auth = HTTPBasicAuth("{key}".format(key = api_key), '')
 
@@ -131,7 +132,6 @@ class CompanyGraph:
             is_company_rem = 0
         else:
             o = Officer(API.get_officer_info(number))
-            print(o)
             officer_queue.append(o)
             
         for i in range(depth):
@@ -152,7 +152,7 @@ class CompanyGraph:
                         c = Company(API.get_company_info(num))
                         company_graph.add(c, node)
                         company_queue.append(c)
-                            
+                    
         return company_graph
     
     def return_company_graph(graph):
@@ -164,7 +164,7 @@ class CompanyGraph:
                 elements.append({"data":
                                  {
                                      "id": key.company_name,
-                                     "label": key.company_name
+                                     "label": CompanyGraph.risk(key, graph)#(key.company_name + "\n" + "Risk: " + str(CompanyGraph.risk(key, graph)))
                                  },
                                  "classes": "company"})
                 for elem in value:
@@ -189,6 +189,30 @@ class CompanyGraph:
                         
         return elements
 
+    def risk(company, graph):
+        if company.has_insolvency_history:
+            return 1
+
+        company_connections = []
+
+        for officer in graph.graph_dict[company]:
+            for c in graph.graph_dict[officer]:
+                if (not c in company_connections) and (c != company):
+                    company_connections.append(c)
+        
+        if len(company_connections) == 0:
+            ## If the company  has no connections we cant really predict anything.
+            return 0.5
+        
+        value = 0
+        for c in company_connections:
+            if c.has_insolvency_history:
+                value = value + 1
+
+        value = value / len(company_connections)
+        return value
+
+    
 class Graph:
     """
     Class representing a bi-directional graph, implamented with an adjacency
