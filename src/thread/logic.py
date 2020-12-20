@@ -164,7 +164,7 @@ class CompanyGraph:
                 elements.append({"data":
                                  {
                                      "id": key.company_name,
-                                     "label": CompanyGraph.risk(key, graph)#(key.company_name + "\n" + "Risk: " + str(CompanyGraph.risk(key, graph)))
+                                     "label": "{comp}: {risk}".format(comp = key.company_name, risk = round(CompanyGraph.risk(key, graph), 2))
                                  },
                                  "classes": "company"})
                 for elem in value:
