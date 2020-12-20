@@ -68,6 +68,19 @@ class APITestCase(TestCase):
         pass
 
 class BreadthTestCase(TestCase):
+    def test_search_type_error(self):
+        with self.assertRaises(TypeError) as e:
+            start_search(11)
+        self.assertEqual(str(e.exception),  "Number must be a string: 11")
+
+        with self.assertRaises(TypeError) as e:
+            start_search("11", depth = "p")
+        self.assertEqual(str(e.exception),  "Depth must be a positive int: p")
+
+        with self.assertRaises(TypeError) as e:
+            start_search("11", depth = 1, is_company = 11)
+        self.assertEqual(str(e.exception),  "is_company must be a bool: 11")
+
     def test_start_search_at_company(self):
         pass
 
