@@ -46,7 +46,15 @@ app.layout = html.Div(
     #[
     #[html.H1("Company Graph")]
     [
-        html.Label("Company Number: "),
+        dcc.Dropdown(
+            id='dropdown',
+            options=[
+                {'label': 'Company Number', 'value': "company"},
+                {'label': 'Officer Number', 'value': "officer"},
+            ],
+            value='company'
+        ),
+        #html.Label("Company Number: "),
         dcc.Input(
             id = "input_cn",
             placeholder='Enter company number',
@@ -66,13 +74,15 @@ app.layout = html.Div(
 
 @app.callback( 
     Output(component_id ='output', component_property ='children'), 
-    [Input(component_id ='input_cn', component_property ='value'),
-    Input(component_id ='input_depth', component_property ='value')]
+    [Input(component_id = "dropdown", component_property = "value"),
+     Input(component_id ='input_cn', component_property ='value'),
+     Input(component_id ='input_depth', component_property ='value')]
 )
 
-def update_value(input_cn, input_depth): 
+def update_value(dropdown, input_cn, input_depth): 
     try:
-        comp = start_at_company(input_cn, depth = int(input_depth))
+        is_company = True if dropdown == "company" else False
+        comp = start_search(input_cn, depth = int(input_depth), is_company = is_company)
         return cyto.Cytoscape(
             id='cytoscape',
             elements=return_company_graph(comp),
