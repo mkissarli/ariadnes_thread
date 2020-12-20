@@ -76,7 +76,46 @@ class CompanyTestCase(TestCase):
 
 
     def test_init_incorrect(self):
-        pass
+        json = {
+            "company_number": "007",
+            "company_name": "Bond Industries",
+            "date_of_creation": "07/07/2007",
+        }
+
+        with self.assertRaises(Exception) as e:
+            Company(json)
+        assert e, "Company json is missing attributes."
+
+        json = {
+            "company_name": "Bond Industries",
+            "date_of_creation": "07/07/2007",
+            "has_insolvency_history": False
+        }
+
+        with self.assertRaises(Exception) as e:
+            Company(json)
+        assert e, "Company json is missing attributes."
+
+        json = {
+            "company_number": "007",
+            "date_of_creation": "07/07/2007",
+            "has_insolvency_history": False
+        }
+
+        with self.assertRaises(Exception) as e:
+            Company(json)
+        assert e, "Company json is missing attributes."
+
+        json = {
+            "company_number": "007",
+            "company_name": "Bond Industries",
+            "has_insolvency_history": False
+        }
+
+        with self.assertRaises(Exception) as e:
+            Company(json)
+        assert e, "Company json is missing attributes."
+        
         
 if __name__ == '__main__':
     unittest.main()
