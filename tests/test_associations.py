@@ -206,7 +206,7 @@ class CompanyGraphTestCase(TestCase):
                 'data': {
                     'source': 'Matty', 'target': 'Bond Industries'}}]
         
-    def risk_incorrect(self):
+    def test_risk_incorrect(self):
         json = {
             "company_number": "007",
             "company_name": "Bond Industries",
@@ -248,16 +248,90 @@ class CompanyGraphTestCase(TestCase):
         graph.add(c, o2)
 
         with self.assertRaises(TypeError) as e:
-            CompanyGraph.risk("2", g)
+            CompanyGraph.risk("2", graph)
         self.assertEqual(str(e.exception), "company arg must be an instance class Company.")
 
+        graph.add(c, "1")
         with self.assertRaises(TypeError) as e:
-            CompanyGraph.risk("2", g)
+            CompanyGraph.risk(c, graph)
         self.assertEqual(str(e.exception), "Graphs passed to risk must be company graphs consisting only of Company and Officer types.")
 
-    def risk_correct(self):
-        pass
+    def test_risk_correct(self):
+        json = {
+            "company_number": "007",
+            "company_name": "Bond Industries",
+            # Could add a date test.
+            "date_of_creation": "07/07/2007",
+            "has_insolvency_history": True
+        }
+        c = Company(json)
+        json = {
+            "name": "Matt",
+            "links": {
+                "officer": {
+                    "appointments": "some_link"
+                }
+            }
+        }
+        o = Officer(json)
 
+        json = {
+            "company_number": "0070",
+            "company_name": "Bond Industries",
+            # Could add a date test.
+            "date_of_creation": "07/07/2007",
+            "has_insolvency_history": False
+        }
+        c2 = Company(json)
+        json = {
+            "name": "Matty",
+            "links": {
+                "officer": {
+                    "appointments": "some_link"
+                }
+            }
+        }
+        o2 = Officer(json)
+
+        graph = Graph()
+        graph.add(c, o)
+        graph.add(c, o2)
+
+        assert CompanyGraph.risk(c, graph), 1
+
+        graph = Graph()
+        graph.add(c2, o)
+
+        assert CompanyGraph.risk(c2, graph), 0.5
+
+        graph.add(c, o)
+        graph.add(c2, o2)
+
+        assert CompanyGraph.risk(c, graph), 1.5
+        assert CompanyGraph.risk(c2, graph), 0.5
+
+        json = {
+            "company_number": "007",
+            "company_name": "Bond Industries",
+            # Could add a date test.
+            "date_of_creation": "07/07/2007",
+            "has_insolvency_history": True
+        }
+        c = Company(json)
+        json = {
+            "name": "Matt",
+            "links": {
+                "officer": {
+                    "appointments": "some_link"
+                }
+            }
+        }
+        o = Officer(json)
+        graph = Graph()
+        graph.add(c, o)
+
+
+        
 class GraphTestCase(TestCase):
     def test_init(self):
         g = Graph()
