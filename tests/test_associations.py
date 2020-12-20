@@ -28,15 +28,31 @@ class APITestCase(TestCase):
         pass
 
 class BreadthTestCase(TestCase):
-    def test_start_at_company(self):
+    def test_start_search_at_company(self):
+        pass
+
+    def test_start_search_at_officer(self):
         pass
 
 class GraphTestCase(TestCase):
     def test_init(self):
-        pass
+        g = Graph()
+        self.assertTrue(g.graph_dict == {})
     
     def test_add(self):
-        pass
+        g = Graph()
+
+        g.add("a", 1)
+        g.add("a", 2)
+        g.add("b", 1)
+
+        test_dict = {
+            "a": {1, 2},
+            "b": {1},
+            1: {"a", "b"},
+            2: {"b"}
+        }
+        assert g.graph_dict, test_dict
 
 class OfficerTestCase(TestCase):
     def test_init_correct(self):
