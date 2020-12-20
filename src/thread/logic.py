@@ -9,7 +9,12 @@ class API:
     auth = HTTPBasicAuth("{key}".format(key = api_key), '')
 
     @staticmethod
-    def status_check(status):
+    def status_check(status: int):
+        """
+        Raises an exception if we recieve a failing status.
+        Args:
+        status (int): Http status code.
+        """
         ## I will not do all of these, for a take home it is excessive.
         if status == 404:
             raise Exception("404 error, not authorised. Check your api key?")
