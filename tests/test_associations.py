@@ -60,9 +60,23 @@ class OfficerTestCase(TestCase):
         assert e, "Officer json is missing attributes."
 
 class CompanyTestCase(TestCase):
-    def test_init(self):
+    def test_init_correct(self):
+        json = {
+            "company_number": "007",
+            "company_name": "Bond Industries",
+            # Could add a date test.
+            "date_of_creation": "07/07/2007",
+            "has_insolvency_history": False
+        }
+        c = Company(json)
+        assert c.company_number, "007"
+        assert c.company_name, "Bond Industries"
+        assert c.creation, "07/07/2007"
+        self.assertTrue(c.has_insolvency_history == False)
+
+
+    def test_init_incorrect(self):
         pass
-
-
+        
 if __name__ == '__main__':
     unittest.main()

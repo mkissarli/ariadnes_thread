@@ -98,7 +98,7 @@ def update_value(input_cn, input_depth):
                     }
                 }
             ])
-    except: 
+    except:
         return "Error, the input is not valid"
 
 app.run_server(debug=True)

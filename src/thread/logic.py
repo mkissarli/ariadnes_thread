@@ -3,10 +3,18 @@ from requests.auth import HTTPBasicAuth
 from collections import deque
 
 class API:
+    # Should be in an .env really.
     api_key = "yLwgnyHvwlYxkbOBAoLEwsaEfVQ_a7kAuCUTNtSt"
     base = "https://api.companieshouse.gov.uk"
     auth = HTTPBasicAuth("{key}".format(key = api_key), '')
 
+    def status_check(status):
+        ## I will not do all of these, for a take home it is excessive.
+        if staus == 404:
+            raise Exception("404 error, not authorised. Check your api key?")
+        if status == 429:
+            raise Exception("429 error, too many requests. You've likely gone past your rate limit.")
+    
     def get_company_info(company_number: str):
         """
         Retrieves information about a company from Companies House.
@@ -18,9 +26,12 @@ class API:
 
         if type(company_number) != str:
             raise TypeError("Company Number must be a string: {num}".format(num = company_number)) 
-        
+
         url = "{base}/company/{company_num}".format(base = API.base, company_num = company_number)
         response = requests.get(url, auth = API.auth)
+
+        self.status_check(response.status)
+        
         return response.json()
     
     def get_company_officers(company_number: str):
@@ -37,6 +48,9 @@ class API:
         
         url = "{base}/company/{company_num}/officers".format(base = API.base, company_num = company_number)
         response = requests.get(url, auth = API.auth)
+
+        self.status_check(response.status)
+        
         return response.json()
     
     def get_general(link: str):
@@ -53,6 +67,9 @@ class API:
         
         url = "{base}{link}".format(base = API.base, link = link)
         response = requests.get(url, auth = API.auth)
+
+        self.status_check(response.status)
+        
         return response.json()
 
 def start_at_company(company_number: str, depth: int = 1):
@@ -71,13 +88,12 @@ def start_at_company(company_number: str, depth: int = 1):
     if type(depth) != int or depth < 0:
         raise TypeError("Depth must be a positive int: {d}".format(d = depth))
 
-    
     company_graph = Graph()
     c = Company(API.get_company_info(company_number))
-    company_queue = []
+    company_queue = [c]
     officer_queue = []
         
-    for i in range(depth + 1):
+    for i in range(depth):
         if i % 2 == 0:
             while company_queue:
                 node = company_queue.pop(0)
@@ -141,8 +157,8 @@ class Officer:
     """
     def __init__(self, json):
         try:
-            self.officer_name = json["name"]
-            self.appointments_link = json["links"]["officer"]["appointments"]
+            self.officer_name = str(json["name"])
+            self.appointments_link = str(json["links"]["officer"]["appointments"])
         except:
             raise Exception("Officer json is missing attributes.")
 
@@ -162,8 +178,8 @@ class Company:
             self.has_insolvency_history = json["has_insolvency_history"]
             ## Inconsistant json..
             # self.active = True if json["status"] == "active" else False
-            self.company_number = json["company_number"]
-            self.company_name = json["company_name"]
-            self.creation = json["date_of_creation"]
+            self.company_number = str(json["company_number"])
+            self.company_name = str(json["company_name"])
+            self.creation = str(json["date_of_creation"])
         except:
             raise Exception("Company json is missing attributes.")
