@@ -135,6 +135,7 @@ class CompanyGraph:
             officer_queue.append(o)
             
         for i in range(depth):
+            print(i)
             if i % 2 == is_company_rem:
                 while company_queue:
                     node = company_queue.pop(0)
