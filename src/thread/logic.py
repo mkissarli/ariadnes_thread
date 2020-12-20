@@ -1,6 +1,5 @@
 import requests
 from requests.auth import HTTPBasicAuth
-from collections import deque
 
 class API:
     # Should be in an .env really.

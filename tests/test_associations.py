@@ -6,24 +6,60 @@ class APITestCase(TestCase):
     def test_status_check(self):
         with self.assertRaises(Exception) as e:
             API.status_check(404)
-        assert e, "404 error, not authorised. Check your api key?"
+        self.assertEqual(str(e.exception), "404 error, not authorised. Check your api key?")
 
         with self.assertRaises(Exception) as e:
             API.status_check(429)
-        assert e, "429 error, too many requests. You've likely gone past your rate limit."
+            self.assertEqual(str(e.exception), "429 error, too many requests. You've likely gone past your rate limit.")
 
         try:
             API.status_check(200)
         except ExceptionType:
             self.fail("API.status_check raised ExceptionType unexpectedly!")
 
+
+    def test_get_company_info_type_error(self):
+        with self.assertRaises(TypeError) as e:
+            API.get_company_info(100)
+        assert e.exception, "Company Number must be a string: 100"
+
+        with self.assertRaises(TypeError) as e:
+            API.get_company_info(True)
+        self.assertEqual(str(e.exception), "Company Number must be a string: True")
         
+    def test_get_company_officers_type_error(self):
+        with self.assertRaises(TypeError) as e:
+            API.get_company_officers(100)
+        self.assertEqual(str(e.exception), "Company Number must be a string: 100")
+
+        with self.assertRaises(TypeError) as e:
+            API.get_company_officers(True)
+        self.assertEqual(str(e.exception), "Company Number must be a string: True")
+
+    def test_get_officers_info_type_error(self):
+        with self.assertRaises(TypeError) as e:
+            API.get_officer_info(100)
+        self.assertEqual(str(e.exception), "Officer Number must be a string: 100")
+
+        with self.assertRaises(TypeError) as e:
+            API.get_officer_info(True)
+        self.assertEqual(str(e.exception),  "Officer Number must be a string: True")
+        
+        
+    def get_general_type_error(self):
+        with self.assertRaises(TypeError) as e:
+            API.get_general(100)
+        self.assertEqual(str(e.exception), "Link must be a string: 100")
+
+        with self.assertRaises(TypeError) as e:
+            API.get_general(True)
+        self.assertEqual(str(e.exception),  "Link must be a string: True")
+        
+            
     def test_get_company_info(self):
         pass
-
     def test_get_company_officers(self):
         pass
-
     def get_general(self):
         pass
 
@@ -72,12 +108,12 @@ class OfficerTestCase(TestCase):
         json = {}
         with self.assertRaises(Exception) as e:
             Officer(json)
-        assert e, "Officer json is missing attributes."
+        self.assertEqual(str(e.exception), "Officer json is missing attributes.")
 
         json = {"name": "Matt"}
         with self.assertRaises(Exception) as e:
             Officer(json)
-        assert e, "Officer json is missing attributes."
+        self.assertEqual(str(e.exception), "Officer json is missing attributes.")
 
         json = {
             "links": {
@@ -88,7 +124,7 @@ class OfficerTestCase(TestCase):
         }
         with self.assertRaises(Exception) as e:
             Officer(json)
-        assert e, "Officer json is missing attributes."
+        self.assertEqual(str(e.exception), "Officer json is missing attributes.")
 
 class CompanyTestCase(TestCase):
     def test_init_correct(self):
@@ -115,7 +151,7 @@ class CompanyTestCase(TestCase):
 
         with self.assertRaises(Exception) as e:
             Company(json)
-        assert e, "Company json is missing attributes."
+        self.assertEqual(str(e.exception), "Company json is missing attributes.")
 
         json = {
             "company_name": "Bond Industries",
@@ -125,7 +161,7 @@ class CompanyTestCase(TestCase):
 
         with self.assertRaises(Exception) as e:
             Company(json)
-        assert e, "Company json is missing attributes."
+        self.assertEqual(str(e.exception), "Company json is missing attributes.")
 
         json = {
             "company_number": "007",
@@ -135,7 +171,7 @@ class CompanyTestCase(TestCase):
 
         with self.assertRaises(Exception) as e:
             Company(json)
-        assert e, "Company json is missing attributes."
+        self.assertEqual(str(e.exception), "Company json is missing attributes.")
 
         json = {
             "company_number": "007",
@@ -145,7 +181,7 @@ class CompanyTestCase(TestCase):
 
         with self.assertRaises(Exception) as e:
             Company(json)
-        assert e, "Company json is missing attributes."
+        self.assertEqual(str(e.exception), "Company json is missing attributes.")
         
         
 if __name__ == '__main__':
