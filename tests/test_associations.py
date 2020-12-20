@@ -1,4 +1,5 @@
 from unittest import TestCase
+from unittest.mock import Mock
 
 from src.thread.logic import *
 
@@ -55,7 +56,10 @@ class APITestCase(TestCase):
             API.get_general(True)
         self.assertEqual(str(e.exception),  "Link must be a string: True")
         
-            
+
+    ## I am of the opinion that these methods don't need to be tested for passes,
+    ## as they are essentially just passing data to a staple api (requests). They
+    ## are here to show I considered them.
     def test_get_company_info(self):
         pass
     def test_get_company_officers(self):
