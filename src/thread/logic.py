@@ -103,7 +103,7 @@ class API:
 def start_search(number: str, depth: int = 1, is_company: bool = True):
     """
     Breadth first search with max depth for creating a graph of companies and
-    officers.
+    officers. Can be started from either.
     Args:
     number (str): Registered company number to start at.
     depth (int): Number greater than 0 that represents how deep down the company graph to go.
