@@ -3,6 +3,21 @@ from unittest import TestCase
 from src.thread.logic import *
 
 class APITestCase(TestCase):
+    def test_status_check(self):
+        with self.assertRaises(Exception) as e:
+            API.status_check(404)
+        assert e, "404 error, not authorised. Check your api key?"
+
+        with self.assertRaises(Exception) as e:
+            API.status_check(429)
+        assert e, "429 error, too many requests. You've likely gone past your rate limit."
+
+        try:
+            API.status_check(200)
+        except ExceptionType:
+            self.fail("API.status_check raised ExceptionType unexpectedly!")
+
+        
     def test_get_company_info(self):
         pass
 
