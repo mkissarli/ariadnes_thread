@@ -109,21 +109,21 @@ class CompanyGraphTestCase(TestCase):
         g = Graph()
         g.add("1", "2")
         
-        with self.assertRaises(Exception) as e:
+        with self.assertRaises(TypeError) as e:
             CompanyGraph.return_company_graph(g)
         self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
 
         g = Graph()
         g.add("1", c)
         
-        with self.assertRaises(Exception) as e:
+        with self.assertRaises(TypeError) as e:
             CompanyGraph.return_company_graph(g)
         self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
 
         g = Graph()
         g.add("1", o)
         
-        with self.assertRaises(Exception) as e:
+        with self.assertRaises(TypeError) as e:
             CompanyGraph.return_company_graph(g)
         self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
 
@@ -131,7 +131,7 @@ class CompanyGraphTestCase(TestCase):
         g.add("1", c)
         g.add(c, o)
 
-        with self.assertRaises(Exception) as e:
+        with self.assertRaises(TypeError) as e:
             CompanyGraph.return_company_graph(g)
         self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
 
@@ -207,7 +207,53 @@ class CompanyGraphTestCase(TestCase):
                     'source': 'Matty', 'target': 'Bond Industries'}}]
         
     def risk_incorrect(self):
-        pass
+        json = {
+            "company_number": "007",
+            "company_name": "Bond Industries",
+            # Could add a date test.
+            "date_of_creation": "07/07/2007",
+            "has_insolvency_history": True
+        }
+        c = Company(json)
+        json = {
+            "name": "Matt",
+            "links": {
+                "officer": {
+                    "appointments": "some_link"
+                }
+            }
+        }
+        o = Officer(json)
+
+        json = {
+            "company_number": "0070",
+            "company_name": "Bond Industries",
+            # Could add a date test.
+            "date_of_creation": "07/07/2007",
+            "has_insolvency_history": False
+        }
+        c2 = Company(json)
+        json = {
+            "name": "Matty",
+            "links": {
+                "officer": {
+                    "appointments": "some_link"
+                }
+            }
+        }
+        o2 = Officer(json)
+
+        graph = Graph()
+        graph.add(c, o)
+        graph.add(c, o2)
+
+        with self.assertRaises(TypeError) as e:
+            CompanyGraph.risk("2", g)
+        self.assertEqual(str(e.exception), "company arg must be an instance class Company.")
+
+        with self.assertRaises(TypeError) as e:
+            CompanyGraph.risk("2", g)
+        self.assertEqual(str(e.exception), "Graphs passed to risk must be company graphs consisting only of Company and Officer types.")
 
     def risk_correct(self):
         pass

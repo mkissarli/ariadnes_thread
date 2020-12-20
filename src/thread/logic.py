@@ -159,7 +159,7 @@ class CompanyGraph:
         elements = []
         for key, value in graph.graph_dict.items():
             if (type(key) != Company and type(key) != Officer) or (not all(isinstance(x, (Company, Officer)) for x in value)):
-                raise Exception("Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
+                raise TypeError("Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
             if type(key) is Company:
                 elements.append({"data":
                                  {
@@ -190,6 +190,13 @@ class CompanyGraph:
         return elements
 
     def risk(company, graph):
+        if type(company) != Company:
+            raise TypeError("company arg must be an instance class Company.")
+        
+        # Inefficent.
+        for key, value in graph.graph_dict.items():
+            if (type(key) != Company and type(key) != Officer) or (not all(isinstance(x, (Company, Officer)) for x in value)):
+                raise TypeError("Graphs passed to risk must be company graphs consisting only of Company and Officer types.")
         if company.has_insolvency_history:
             return 1
 
