@@ -156,6 +156,15 @@ class CompanyGraph:
         return company_graph
     
     def return_company_graph(graph):
+        """
+        Takes a Company Graph and returns a Dash Cytoscape compatible object to 
+        render in Dash.
+        Args:
+        graph (Graph): Company Graph to render. Must specifically  be a graph
+          consisting only of Company and Officer objects.
+        Returns:
+        Dash Cytoscape object for render.
+        """
         elements = []
         for key, value in graph.graph_dict.items():
             if (type(key) != Company and type(key) != Officer) or (not all(isinstance(x, (Company, Officer)) for x in value)):
@@ -190,6 +199,30 @@ class CompanyGraph:
         return elements
 
     def risk(company, graph):
+        """
+        Calculates the risk of working with a company. There are a million
+        different ways to do this. Some good ideas are:
+          + Bayesian Inference, to update probability of a failing company.
+          + Using a geometric sequence such that if the company is insolvant then
+            the risk is 1, and after then
+            sum((1/depth)^(depth - 1) * (total fails at depth)/(total companies at depth)) for each depth.
+
+        We go with a variation on the second one where an insolvant company fails,
+        and every company one officer away that is insolvent adds to the overall
+        fail rate. 
+
+        I would prefer to go with one of the above methods, but between time
+        constraints, my inexperience in rating companies and that it can get
+        quite expensive to run this for each company, I've decided for the take
+        home this is a better option.
+
+        Args:
+        company (Company): Company to rate.
+        graph (Graph): Graph of relations to company
+        Returns:
+        (int): Risk of associating with a company as a percentage. 0 means no risk
+          at all, and 1 means certain failure.
+        """
         if type(company) != Company:
             raise TypeError("company arg must be an instance class Company.")
         
