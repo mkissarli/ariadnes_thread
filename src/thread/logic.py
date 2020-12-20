@@ -158,7 +158,7 @@ class CompanyGraph:
     def return_company_graph(graph):
         elements = []
         for key, value in graph.graph_dict.items():
-            if (type(key) != Company and type(key) != Officer) and all(isinstance(x, (Company, Officer)) for x in value):
+            if (type(key) != Company and type(key) != Officer) or (type(value) != Company and type(value) != Officer):
                 raise Exception("Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
             if type(key) is Company:
                 elements.append({"data":
