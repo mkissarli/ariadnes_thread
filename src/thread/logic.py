@@ -134,7 +134,7 @@ class CompanyGraph:
             o = Officer(API.get_officer_info(number))
             officer_queue.append(o)
             
-        for i in range(depth):
+        for i in range(depth + 1):
             if i % 2 == is_company_rem:
                 while company_queue:
                     node = company_queue.pop(0)
