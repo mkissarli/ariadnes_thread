@@ -98,64 +98,96 @@ class API:
         API.status_check(response.status_code)
 
         return response.json()
-
-def start_search(number: str, depth: int = 1, is_company: bool = True):
-    """
-    Breadth first search with max depth for creating a graph of companies and
-    officers. Can be started from either.
-    Args:
-    number (str): Registered company number to start at.
-    depth (int): Number greater than 0 that represents how deep down the company graph to go.
-    is_company (bool): True we start at a company, False we start at an officer.
-    Returns:
-    Graph of companies and officers.
-    """
-
-    if type(is_company) != bool:
-        raise TypeError("is_company must be a bool: {b}".format(b = is_company))
-    if type(number) != str:
-        raise TypeError("Number must be a string: {num}".format(num = number))
-
-    if type(depth) != int or depth < 0:
-        raise TypeError("Depth must be a positive int: {d}".format(d = depth))
-
-    company_graph = Graph()
-    company_queue = []
-    officer_queue = []
-
-    is_company_rem = 1
-
-    if is_company:
-        c = Company(API.get_company_info(number))
-        company_queue.append(c)
-        is_company_rem = 0
-    else:
-        o = Officer(API.get_officer_info(number))
-        print(o)
-        officer_queue.append(o)
+    
+class CompanyGraph:
+    def start_search(number: str, depth: int = 1, is_company: bool = True):
+        """
+        Breadth first search with max depth for creating a graph of companies and
+        officers. Can be started from either.
+        Args:
+        number (str): Registered company number to start at.
+        depth (int): Number greater than 0 that represents how deep down the company graph to go.
+        is_company (bool): True we start at a company, False we start at an officer.
+        Returns:
+        Graph of companies and officers.
+        """
         
-    for i in range(depth):
-        if i % 2 == is_company_rem:
-            while company_queue:
-                node = company_queue.pop(0)
-                response = API.get_company_officers(node.company_number)
-                for i in response["items"]:
-                    o = Officer(i)
-                    company_graph.add(node, o)
-                    officer_queue.append(o)
+        if type(is_company) != bool:
+            raise TypeError("is_company must be a bool: {b}".format(b = is_company))
+        if type(number) != str:
+            raise TypeError("Number must be a string: {num}".format(num = number))
+        if type(depth) != int or depth < 0:
+            raise TypeError("Depth must be a positive int: {d}".format(d = depth))
+        
+        company_graph = Graph()
+        company_queue = []
+        officer_queue = []
+        
+        is_company_rem = 1
+        
+        if is_company:
+            c = Company(API.get_company_info(number))
+            company_queue.append(c)
+            is_company_rem = 0
         else:
-            while officer_queue:
-                node = officer_queue.pop(0)
-                response = API.get_general(node.appointments_link)
-                for appointments in response["items"]:
-                    num = appointments["appointed_to"]["company_number"]
-                    c = Company(API.get_company_info(num))
-                    company_graph.add(c, node)
-                    company_queue.append(c)
-
-    return company_graph
+            o = Officer(API.get_officer_info(number))
+            print(o)
+            officer_queue.append(o)
             
-        
+        for i in range(depth):
+            if i % 2 == is_company_rem:
+                while company_queue:
+                    node = company_queue.pop(0)
+                    response = API.get_company_officers(node.company_number)
+                    for i in response["items"]:
+                        o = Officer(i)
+                        company_graph.add(node, o)
+                        officer_queue.append(o)
+            else:
+                while officer_queue:
+                    node = officer_queue.pop(0)
+                    response = API.get_general(node.appointments_link)
+                    for appointments in response["items"]:
+                        num = appointments["appointed_to"]["company_number"]
+                        c = Company(API.get_company_info(num))
+                        company_graph.add(c, node)
+                        company_queue.append(c)
+                            
+        return company_graph
+    
+    def return_company_graph(graph):
+        elements = []
+        for key, value in graph.graph_dict.items():
+            if (type(key) != Company and type(key) != Officer) or (type(value) != Company and type(value) != Officer):
+                raise Exception("Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
+            if type(key) is Company:
+                elements.append({"data":
+                                 {
+                                     "id": key.company_name,
+                                     "label": key.company_name
+                                 },
+                                 "classes": "company"})
+                for elem in value:
+                    elements.append({"data":
+                                    {
+                                        "source": key.company_name,
+                                        "target": elem.officer_name
+                                    }})
+            else:
+                elements.append({"data":
+                                 {
+                                     "id": key.officer_name,
+                                     "label": key.officer_name
+                                 },
+                                 "classes": "officer"})
+                for elem in value:
+                    elements.append({"data":
+                                     {
+                                         "source": key.officer_name,
+                                         "target": elem.company_name
+                                     }})
+                        
+        return elements
 
 class Graph:
     """

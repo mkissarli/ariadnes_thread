@@ -45,8 +45,7 @@ class APITestCase(TestCase):
         with self.assertRaises(TypeError) as e:
             API.get_officer_info(True)
         self.assertEqual(str(e.exception),  "Officer Number must be a string: True")
-        
-        
+            
     def get_general_type_error(self):
         with self.assertRaises(TypeError) as e:
             API.get_general(100)
@@ -67,25 +66,81 @@ class APITestCase(TestCase):
     def get_general(self):
         pass
 
-class BreadthTestCase(TestCase):
+class CompanyGraphTestCase(TestCase):
     def test_search_type_error(self):
         with self.assertRaises(TypeError) as e:
-            start_search(11)
+            CompanyGraph.start_search(11)
         self.assertEqual(str(e.exception),  "Number must be a string: 11")
 
         with self.assertRaises(TypeError) as e:
-            start_search("11", depth = "p")
+            CompanyGraph.start_search("11", depth = "p")
         self.assertEqual(str(e.exception),  "Depth must be a positive int: p")
 
         with self.assertRaises(TypeError) as e:
-            start_search("11", depth = 1, is_company = 11)
+            CompanyGraph.start_search("11", depth = 1, is_company = 11)
         self.assertEqual(str(e.exception),  "is_company must be a bool: 11")
 
+    # This is a huge pain to test, and makes much more sense testing it in
+    # context that is as an integration/system test, which I have done and it
+    # works.
     def test_start_search_at_company(self):
+        #company_graph = start_search("11", depth = 2)
         pass
-
     def test_start_search_at_officer(self):
         pass
+
+    def return_company_graph_not_company_graph(self):
+        json = {
+            "company_number": "007",
+            "company_name": "Bond Industries",
+            # Could add a date test.
+            "date_of_creation": "07/07/2007",
+            "has_insolvency_history": False
+        }
+        c = Company(json)
+        json = {
+            "name": "Matt",
+            "links": {
+                "officer": {
+                    "appointments": "some_link"
+                }
+            }
+        }
+        o = Officer(json)
+        
+        d = {
+            "1": ["2"],
+            "2": ["1"]
+        }
+        with self.assertRaises(Exception) as e:
+            CompanyGraph.return_company_graph(d)
+        self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
+
+        d = {
+            "1": [c],
+            c: ["1"]
+        }
+        with self.assertRaises(Exception) as e:
+            CompanyGraph.return_company_graph(d)
+        self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
+
+        d = {
+            "1": [o],
+            o: ["1"]
+        }
+        with self.assertRaises(Exception) as e:
+            CompanyGraph.return_company_graph(d)
+        self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
+
+        d = {
+            "1": [c],
+            c: ["1",  o],
+            o: [c]
+        }
+        with self.assertRaises(Exception) as e:
+            CompanyGraph.return_company_graph(d)
+        self.assertEqual(str(e.exception), "Graphs passed to return_company_graph must be company graphs consisting only of Company and Officer types.")
+        
 
 class GraphTestCase(TestCase):
     def test_init(self):

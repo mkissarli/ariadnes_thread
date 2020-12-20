@@ -8,38 +8,6 @@ import plotly.express as px
 from thread.logic import *
 #comp = start_at_company("07798925")
 
-def return_company_graph(graph):
-    elements = []
-    for key, value in graph.graph_dict.items():
-        if type(key) is Company:
-            elements.append({"data":
-                             {
-                                 "id": key.company_name,
-                                 "label": key.company_name
-                             },
-                             "classes": "company"})
-            for elem in value:
-                elements.append({"data":
-                                 {
-                                     "source": key.company_name,
-                                     "target": elem.officer_name
-                                 }})
-        else:
-            elements.append({"data":
-                             {
-                                 "id": key.officer_name,
-                                 "label": key.officer_name
-                             },
-                             "classes": "officer"})
-            for elem in value:
-                elements.append({"data":
-                                 {
-                                     "source": key.officer_name,
-                                     "target": elem.company_name
-                                 }})
-
-    return elements
-
 app = dash.Dash(__name__)
 
 app.layout = html.Div(
@@ -82,10 +50,10 @@ app.layout = html.Div(
 def update_value(dropdown, input_cn, input_depth): 
     try:
         is_company = True if dropdown == "company" else False
-        comp = start_search(input_cn, depth = int(input_depth), is_company = is_company)
+        comp = CompanyGraph.start_search(input_cn, depth = int(input_depth), is_company = is_company)
         return cyto.Cytoscape(
             id='cytoscape',
-            elements=return_company_graph(comp),
+            elements=CompanyGraph.return_company_graph(comp),
             layout={'name': 'breadthfirst'},
             style={'width': '100%', 'height': '480px'},
             stylesheet=[
